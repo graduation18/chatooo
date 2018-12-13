@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "562063361553",
+    "firebase_url": "https://translation-61f47.firebaseio.com",
+    "project_id": "translation-61f47",
+    "storage_bucket": "translation-61f47.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562063361553:android:ceb3ad0157653b1d",
+        "android_client_info": {
+          "package_name": "com.example.gaber.translation_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "562063361553-5t30jp2cs72j2qn22vgais76lqk8q04n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIZPyvN1Caw8rWi8Cf1LyZVIYcWfIGDtU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

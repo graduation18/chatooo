@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.login">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_people"/>
+
+
+
+
+        <LinearLayout
+            android:id="@+id/llSignup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@color/colorAccentTrans"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            app:layout_widthPercent="15%">
+
+
+            <include
+                android:id="@+id/llSignupContent"
+                layout="@layout/layout_signup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"></include>
+        </LinearLayout>
+
+
+</RelativeLayout>
