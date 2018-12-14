@@ -3,10 +3,12 @@ package com.example.gaber.translation_chat.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.gaber.translation_chat.R;
@@ -41,6 +43,7 @@ public class confirm_code extends AppCompatActivity {
     String vervication_id,phone;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     LinePinField linePinField;
+
 
 
     @Override
@@ -86,13 +89,34 @@ public class confirm_code extends AppCompatActivity {
     }
     private void get_verfiy_code(String phone_number)
     {
-
+        int number_of_tries=getSharedPreferences("request_code",MODE_PRIVATE).getInt("number_of_tries",0);
+        getSharedPreferences("request_code",MODE_PRIVATE).edit()
+                .putInt("number_of_tries",number_of_tries+1)
+                .apply();
+        if (number_of_tries>3){
+            getSharedPreferences("request_code",MODE_PRIVATE).edit()
+                    .putInt("timer",1)
+                    .apply();
+        }else if (number_of_tries>4){
+            getSharedPreferences("request_code",MODE_PRIVATE).edit()
+                    .putInt("timer",3)
+                    .apply();
+        }else if (number_of_tries>5){
+            getSharedPreferences("request_code",MODE_PRIVATE).edit()
+                    .putInt("timer",60)
+                    .apply();
+        }else if (number_of_tries>7){
+            getSharedPreferences("request_code",MODE_PRIVATE).edit()
+                    .putInt("timer",20*60)
+                    .apply();
+        }
+        int timer=getSharedPreferences("request_code",MODE_PRIVATE).getInt("timer",0);
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phone_number,        // Phone number to verify
-                60,                 // Timeout duration
-                TimeUnit.SECONDS,   // Unit of timeout
+                timer,                 // Timeout duration
+                TimeUnit.MINUTES,   // Unit of timeout
                 this,               // Activity (for callback binding)
-                mCallbacks);        // OnVerificationStateChangedCallbacks
+                mCallbacks);// OnVerificationStateChangedCallbacks
 
     }
     private void sign_in(String vervication_id,String code)
@@ -108,8 +132,13 @@ public class confirm_code extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
                             String refreshedtoken= FirebaseInstanceId.getInstance().getToken();
+                            getSharedPreferences("request_code",MODE_PRIVATE).edit()
+                                    .putInt("number_of_tries",0)
+                                    .putInt("timer",0)
+                                    .apply();
 
                             check_user(refreshedtoken,phone,credential.getSmsCode());
+
 
                         }else {
                             Log.w("khgj",task.getException());
@@ -174,11 +203,6 @@ public class confirm_code extends AppCompatActivity {
         });
 
     }
-    private void code_sent(int number,int stop_time){
-        SharedPreferences.Editor editor=getSharedPreferences("code_sent",MODE_PRIVATE).edit();
-        editor.putBoolean("confirm_mobile_number",true);
-        editor.putInt("number_of_tries",number);
-        editor.putInt("stop_time",stop_time);
-        editor.apply();
-    }
+
+
 }
