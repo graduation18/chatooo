@@ -16,8 +16,15 @@ import com.example.gaber.translation_chat.fragments.contacts_recycler;
 import com.example.gaber.translation_chat.models.user_data_model;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by gaber on 01/11/2018.
@@ -40,11 +47,13 @@ public class main_activity extends MainActivity {
         adapter.addFragment(new contacts_recycler(),"Contacts");
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+        status_online();
         get_users();
 
     }
 
-    private void get_users(){
+    private void get_users()
+    {
         FirebaseDatabase.getInstance().getReference().child("users")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -76,5 +85,64 @@ public class main_activity extends MainActivity {
 
                     }
                 });
+    }
+    private void status_online()
+    {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
+        Query query = reference.orderByChild("token").equalTo(FirebaseInstanceId.getInstance().getToken());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    for (DataSnapshot user : dataSnapshot.getChildren()) {
+
+                        DatabaseReference myRef = user.getRef();
+                        myRef.child("status").setValue("Online");
+                        myRef.child("last_seen").setValue("Online");
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });}
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
+        Query query = reference.orderByChild("token").equalTo(FirebaseInstanceId.getInstance().getToken());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    for (DataSnapshot user : dataSnapshot.getChildren()) {
+
+                        DatabaseReference myRef = user.getRef();
+                        myRef.child("status").setValue("Offline");
+                        if (getSharedPreferences("last_seen",MODE_PRIVATE).getBoolean("state",false)){
+                            final String date = new SimpleDateFormat("yyyy/MM/dd HH:mm aa", Locale.getDefault()).format(new Date());
+                            myRef.child("last_seen").setValue(date);
+                        }else {
+                            myRef.child("last_seen").setValue("hidden");
+
+                        }
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }

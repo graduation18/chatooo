@@ -598,8 +598,8 @@ public class database_operations extends SQLiteOpenHelper {
         user_data_model User_data_model=new user_data_model();
 
         // Select All Query
-            countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME+" WHERE "+user_data_model.phone_sql+"=?";
-            Cursor cursor = db.rawQuery(countQuery, new String[]{phone});
+            countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME+" WHERE "+user_data_model.phone_sql+"=?"+" OR "+user_data_model.token_sql+"=?";
+            Cursor cursor = db.rawQuery(countQuery, new String[]{phone,phone});
             if (cursor.moveToFirst()) {
 
 

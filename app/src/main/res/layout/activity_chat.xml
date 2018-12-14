@@ -38,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/last_seen"
                 android:layout_margin="10dp"
+                android:visibility="gone"
 
                 />
         </LinearLayout>

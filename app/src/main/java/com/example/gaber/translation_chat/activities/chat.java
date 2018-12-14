@@ -2,6 +2,7 @@ package com.example.gaber.translation_chat.activities;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -117,18 +118,13 @@ public class chat extends MainActivity {
         database = FirebaseDatabase.getInstance();
         queue = Volley.newRequestQueue(this);
         to_user_id=getIntent().getStringExtra("user_token");
-        DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users");
-        Query query = mFirebaseDatabaseReference.orderByChild("token").equalTo(to_user_id);
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-                    String from_name=dataSnapshot1.getValue(user_data_model.class).name;
-                    String image_url=dataSnapshot1.getValue(user_data_model.class).image_url;
-                    user_id.setText(from_name);
-                    Picasso.with(chat.this)
-                            .load(image_url)
-                            .fit().into(user_image, new Callback() {
+        user_data_model user=db.getAll_users_model(to_user_id);
+        String from_name=user.name;
+        String image_url=user.image_url;
+        user_id.setText(from_name);
+        Picasso.with(chat.this)
+                .load(image_url)
+                .fit().into(user_image, new Callback() {
                         @Override
                         public void onSuccess() {
                             user_image.setVisibility(View.VISIBLE);
@@ -137,16 +133,8 @@ public class chat extends MainActivity {
                             Toast.makeText(chat.this,"error loading image",Toast.LENGTH_LONG).show();
                         }
                     });
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        check_last_seen(user.phone);
+        status_online();
         refresh();
         friends_recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, friends_recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
@@ -546,8 +534,6 @@ public class chat extends MainActivity {
                 };
                 // Add the request to the RequestQueue.
                 queue.add(stringRequest);
-                sent();
-
 
             } catch (Exception e) {
 
@@ -574,8 +560,6 @@ public class chat extends MainActivity {
         data_model_list.addAll(db.getAll_notification_model(my_user_id,to_user_id));
         data_adapter.notifyDataSetChanged();
         data_recyclerView.smoothScrollToPosition(data_model_list.size() - 1);
-        seen();
-
     }
     private void refresh()
     {
@@ -630,9 +614,13 @@ public class chat extends MainActivity {
 
                         DatabaseReference myRef = user.getRef();
                         myRef.child("status").setValue("Offline");
-                        final String date = new SimpleDateFormat("yyyy/MM/dd HH:mm aa", Locale.getDefault()).format(new Date());
-                        myRef.child("last_seen").setValue(date);
+                        if (getSharedPreferences("last_seen",MODE_PRIVATE).getBoolean("state",false)){
+                            final String date = new SimpleDateFormat("yyyy/MM/dd HH:mm aa", Locale.getDefault()).format(new Date());
+                            myRef.child("last_seen").setValue(date);
+                        }else {
+                            myRef.child("last_seen").setValue("hidden");
 
+                        }
                     }
 
                 }
@@ -673,41 +661,56 @@ public class chat extends MainActivity {
         });
 
     }
-    private void sent(){
-        String name=getSharedPreferences("logged_in",MODE_PRIVATE).getString("name","");
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("friends_list").child(name).child(user_id.getText().toString());
-        myRef.child("message_status").setValue("sent");
-
-
-    }
-    private void seen(){
-        String name=getSharedPreferences("logged_in",MODE_PRIVATE).getString("name","");
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("friends_list").child(user_id.getText().toString()).child(name);
-        myRef.child("message_status").setValue("seen");
-
-    }
-    private void check_seen(){
-        String name=getSharedPreferences("logged_in",MODE_PRIVATE).getString("name","");
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("friends_list").child(name).child(user_id.getText().toString())
-                .child("message_status");
-        myRef.addValueEventListener(new ValueEventListener() {
+    private void  check_last_seen(String phone)
+    {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
+        Query query = reference.orderByChild("phone").equalTo(phone);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue(String.class).contains("seen")){
-                    seen=true;
-                    data_adapter.notifyDataSetChanged();
-                }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
 
+                    for (DataSnapshot sub_type : dataSnapshot.getChildren()) {
+                        if (!sub_type.child("last_seen").getValue(String.class).contains("hidden"))
+                        last_seen.setText(sub_type.child("last_seen").getValue(String.class));
+                        last_seen.setVisibility(View.VISIBLE);
+                    }
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("khgj",databaseError.getMessage());
+
 
             }
         });
-
     }
+    private void status_online()
+    {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
+        Query query = reference.orderByChild("token").equalTo(FirebaseInstanceId.getInstance().getToken());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    for (DataSnapshot user : dataSnapshot.getChildren()) {
+
+                        DatabaseReference myRef = user.getRef();
+                        myRef.child("status").setValue("Online");
+                        myRef.child("last_seen").setValue("Online");
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });}
+
+
 }

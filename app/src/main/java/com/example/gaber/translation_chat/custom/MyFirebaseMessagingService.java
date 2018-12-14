@@ -145,7 +145,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
                     String from_name=dataSnapshot1.getValue(user_data_model.class).name;
-                    notification(message,from_name);
+                    if (getSharedPreferences("notifications_mute",MODE_PRIVATE).getBoolean("state",false)){
+                        notification(message,from_name);
+                    }
+
+
                     db.insert_data_model(from_user_token,refreshedtoken,message,type, (int) (date1.getTime()/1000),storage_url,lang_pair);
 
                 }
