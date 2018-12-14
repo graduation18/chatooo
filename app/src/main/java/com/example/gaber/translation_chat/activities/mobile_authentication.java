@@ -24,6 +24,11 @@ public class mobile_authentication extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getSharedPreferences("logged_in",MODE_PRIVATE).getBoolean("state",false)){
+            Intent main=new Intent(this,main_activity.class);
+            startActivity(main);
+            finish();
+        }
         setContentView(R.layout.activity_mobile_authentication);
         ccp = (CountryCodePicker) findViewById(R.id.ccp);
         edtPhoneNumber = (AppCompatEditText) findViewById(R.id.phone_number_edt);

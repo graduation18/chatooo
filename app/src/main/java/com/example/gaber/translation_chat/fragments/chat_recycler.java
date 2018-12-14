@@ -59,7 +59,6 @@ public class chat_recycler extends Fragment {
             public void onLongClick(View view, int position) {
             }
         }));
-
         reload();
         refresh();
 
@@ -72,7 +71,8 @@ public class chat_recycler extends Fragment {
         data_adapter.notifyDataSetChanged();
     }
     @Override
-    public void onResume() {
+    public void onResume()
+    {
         super.onResume();
         reload();
     }

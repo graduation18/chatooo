@@ -124,7 +124,7 @@ public class confirm_code extends AppCompatActivity {
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("users");
-        user_data_model user=new user_data_model("",user_token,"","Online","","",00,"en");
+        user_data_model user=new user_data_model("",user_token,"","Online","","",00,"en",phone);
         myRef.push().setValue(user);
         Intent main=new Intent(confirm_code.this,login.class);
         main.putExtra("phone_number",phone);
@@ -151,7 +151,7 @@ public class confirm_code extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences("logged_in", MODE_PRIVATE).edit();
                         editor.putBoolean("state",true);
                         editor.apply();
-                        Intent main=new Intent(confirm_code.this,MainActivity.class);
+                        Intent main=new Intent(confirm_code.this,main_activity.class);
                         startActivity(main);
                         finish();
                         Toast.makeText(getApplicationContext(),"welcome",Toast.LENGTH_LONG).show();

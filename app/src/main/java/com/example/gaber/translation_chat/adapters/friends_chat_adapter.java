@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -67,6 +68,9 @@ private List<data_model> datalist;
         final data_model data = datalist.get(position);
         final String message=data.message;
         String from_user_name=data.from;
+        if (from_user_name.contains(FirebaseInstanceId.getInstance().getToken())){
+            from_user_name=data.to;
+        }
         DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users");
         Query query = mFirebaseDatabaseReference.orderByChild("token").equalTo(from_user_name);
 

@@ -1,8 +1,12 @@
 package com.example.gaber.translation_chat.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -98,41 +102,7 @@ public class add_friend extends MainActivity {
                 }
             }
         });
-        db.delete_all_search();
-        FirebaseDatabase.getInstance().getReference().child("users")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChildren()) {
 
-                            for (DataSnapshot sub_type : dataSnapshot.getChildren()) {
-                                String name=sub_type.child("name").getValue().toString();
-                                String token=sub_type.child("token").getValue().toString();
-                                String pass=sub_type.child("pass").getValue().toString();
-                                String image_url=sub_type.child("image_url").getValue().toString();
-                                String status=sub_type.child("status").getValue().toString();
-                                String country=sub_type.child("country").getValue().toString();
-                                String gender=sub_type.child("gender").getValue().toString();
-                                int age=sub_type.child("age").getValue(Integer.class);
-                                String language=sub_type.child("language").getValue().toString();
-                                db.insert_user_model(
-                                        name,token,image_url,status,country,gender,age,language
-                                );
-                                data_model_list.add(new user_data_model(name,token
-                                ,image_url,status,country,gender,age,language));
-                            }
-                            data_adapter.notifyDataSetChanged();
-                        }else {
-                            Toast.makeText(getApplicationContext(),"no such user",Toast.LENGTH_LONG).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
 
     }
     private void find_user(final String name,int age,String gender,String country)
@@ -162,9 +132,10 @@ public class add_friend extends MainActivity {
     public void onBackPressed()
     {
         super.onBackPressed();
-        Intent back=new Intent(this,chat.class);
+        Intent back=new Intent(this,main_activity.class);
         finish();
         startActivity(back);
     }
+
 
 }

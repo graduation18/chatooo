@@ -161,22 +161,7 @@ public class login extends AppCompatActivity {
             }
         });
     }
-    private void sign_up(String user_token,String name,String image_url,String country,int age,String gender,String language)
-    {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("users");
-        user_data_model user=new user_data_model(name,user_token,image_url,"Online",country,gender,age,language);
-        myRef.push().setValue(user);
-        SharedPreferences.Editor editor = getSharedPreferences("logged_in", MODE_PRIVATE).edit();
-        editor.putBoolean("state",true);
-        editor.putString("name",name);
-        editor.putString("language",language);
-        editor.apply();
-        Intent main=new Intent(login.this,chat_recycler.class);
-        startActivity(main);
-        finish();
 
-    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -205,6 +190,7 @@ public class login extends AppCompatActivity {
                         myRef.child("age").setValue(age);
                         myRef.child("gender").setValue(gender);
                         myRef.child("language").setValue(language);
+                        myRef.child("image_url").setValue(image_url);
                     }
                     sign_in(name,language);
                 }
