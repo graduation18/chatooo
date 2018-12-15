@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -71,12 +72,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class chat extends MainActivity {
+public class chat extends AppCompatActivity {
     private static MediaRecorder mediaRecorder;
     private static MediaPlayer mediaPlayer;
     private static String audioFilePath;
     private boolean isRecording = false;
-    private TextView user_id,last_seen ;
+    private TextView user_id,last_seen,back ;
     private EditText textmessage ;
     private ImageView choose_images,Choose_files,user_image,translate ;
     private com.example.gaber.translation_chat.adapters.data_adapter data_adapter;
@@ -98,6 +99,7 @@ public class chat extends MainActivity {
         user_id=(TextView)findViewById(R.id.user_id);
         textmessage=(EditText)findViewById(R.id.textmessage);
         last_seen=(TextView)findViewById(R.id.last_seen);
+        back=(TextView)findViewById(R.id.back);
         choose_images=(ImageView) findViewById(R.id.camera);
         Choose_files=(ImageView)findViewById(R.id.attachfiles);
         user_image=(ImageView)findViewById(R.id.user_image);
@@ -136,30 +138,6 @@ public class chat extends MainActivity {
         check_last_seen(user.phone);
         status_online();
         refresh();
-        friends_recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, friends_recyclerView, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                user_id.setText(friends_list.get(position).name);
-                to_user_id=friends_list.get(position).token;
-                to_lang=friends_list.get(position).language;
-                lang_pair=my_user_lang+"-"+to_lang;
-                Picasso.with(chat.this)
-                        .load(friends_list.get(position).image)
-                        .placeholder(R.mipmap.ic_launcher).transform(new PicassoCircleTransformation()).into(user_image, new Callback() {
-                    @Override
-                    public void onSuccess() {}
-                    @Override public void onError() {
-                        Toast.makeText(chat.this,"error loading image",Toast.LENGTH_LONG).show();
-                    }
-                });
-                user_image.setVisibility(View.VISIBLE);
-                refresh();
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-            }
-        }));
 
 
 
@@ -286,6 +264,14 @@ public class chat extends MainActivity {
                     isTranslating=false;
                 }
 
+            }
+        });
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(chat.this,main_activity.class);
+                startActivity(intent);
+                finish();
             }
         });
 

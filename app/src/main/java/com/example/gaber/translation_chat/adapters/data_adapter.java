@@ -47,7 +47,6 @@ private Context context;
 private List<data_model> datalist;
 private static MediaPlayer mediaPlayer;
 public boolean seen=false;
-private TextToSpeech mTTS;
 
 
 
@@ -127,22 +126,7 @@ private TextToSpeech mTTS;
     public data_adapter(Context context, List<data_model> datalist,boolean seen) {
         this.context = context;
         this.datalist = datalist;
-        seen= seen;
-        mTTS = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    int result = mTTS.setLanguage(Locale.getDefault());
 
-                    if (result == TextToSpeech.LANG_MISSING_DATA
-                            || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.e("TTS", "Language not supported");
-                    }
-                } else {
-                    Log.e("TTS", "Initialization failed");
-                }
-            }
-        });
     }
 
     @Override
@@ -228,15 +212,6 @@ private TextToSpeech mTTS;
 
             }else {
                 return 7;
-            }
-
-        }
-        else if (datalist.get(position).type.contains("translate")){
-            if (datalist.get(position).from.equals(FirebaseInstanceId.getInstance().getToken())) {
-                return 8;
-
-            }else {
-                return 9;
             }
 
         }
@@ -389,40 +364,9 @@ private TextToSpeech mTTS;
             });
 
         }
-        else if (holder.getItemViewType()==8||holder.getItemViewType()==9){
-            MyViewHolder_translate message=(MyViewHolder_translate)holder;
-            message.name.setText(from_name);
-            message.translate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try {
-                        String message=data.message;
-                        String languagePair =data.lang_pair;
-                        Log.w("mhbgffghfhg",languagePair);
-                        String translate= null;
-                        translate = Translate(message,languagePair);
-                        Log.w("mhbgffghfhg",translate);
-                        speak(translate);
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
 
-                }
-            });
+    }
 
-        }
-    }
-    String Translate(String textToBeTranslated,String languagePair) throws ExecutionException, InterruptedException {
-        TranslatorBackgroundTask translatorBackgroundTask= new TranslatorBackgroundTask(context);
-        String translationResult = translatorBackgroundTask.execute(textToBeTranslated,languagePair).get().toString();// Returns the translated text as a String
-        return translationResult;// Logs the result in Android Monitor
-    }
-    private void speak(String text) {
-
-        mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-    }
 
 }
 

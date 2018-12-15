@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.gaber.translation_chat.R;
@@ -49,6 +50,7 @@ public class main_activity extends MainActivity {
         tabLayout.setupWithViewPager(viewPager);
         status_online();
         get_users();
+
 
     }
 

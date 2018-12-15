@@ -327,6 +327,6 @@ public class my_profile extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        startActivity(new Intent(this,chat.class));
+        startActivity(new Intent(this,main_activity.class));
     }
 }

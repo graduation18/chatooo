@@ -1,9 +1,12 @@
 package com.example.gaber.translation_chat.fragments;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
@@ -13,9 +16,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.gaber.translation_chat.custom.MyDividerItemDecoration;
 import com.example.gaber.translation_chat.R;
@@ -70,28 +75,59 @@ public class contacts_recycler extends Fragment {
             }
         }));
         check_contacts_permission();
-        get_contacts();
         return view;
     }
 
 
     private void get_contacts(){
         ArrayList<String>contacts=new ArrayList<>();
-        Cursor phones = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
-        while (phones.moveToNext())
-        {
-            String name=phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String  phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            contacts.add(phoneNumber);
+        String phoneNumber = null;
+        Uri CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
+        String _ID = ContactsContract.Contacts._ID;
+        String DISPLAY_NAME = ContactsContract.Contacts.DISPLAY_NAME;
+        String HAS_PHONE_NUMBER = ContactsContract.Contacts.HAS_PHONE_NUMBER;
+        Uri PhoneCONTENT_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+        String Phone_CONTACT_ID = ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
+        String NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER;
+        StringBuffer output = new StringBuffer();
+        ContentResolver contentResolver = getActivity().getContentResolver();
+        Cursor cursor = contentResolver.query(CONTENT_URI, null,null, null, null);
+
+        if (cursor.getCount() > 0) {
+
+            while (cursor.moveToNext()) {
+
+                String contact_id = cursor.getString(cursor.getColumnIndex( _ID ));
+                String name = cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ));
+                long hasPhoneNumber = Long.parseLong(cursor.getString(cursor.getColumnIndex( HAS_PHONE_NUMBER )));
+
+                if (hasPhoneNumber > 0) {
+                    output.append("\n Name:" + name);
+                    Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { contact_id }, null);
+
+                    while (phoneCursor.moveToNext()) {
+                        phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
+                        contacts.add(phoneNumber);
+                    }
+                    phoneCursor.close();
+                }
+            }
+        }else{
+           Toast.makeText(getActivity(), "No contacts Found", Toast.LENGTH_LONG).show();
         }
-        phones.close();
         check_contacts(contacts);
     }
     private void check_contacts(ArrayList<String> contacts){
         data_model_list.clear();
-        for (String phone:contacts){
-            data_model_list.add(db.getAll_users_model(phone));
+
+        for (String phone:contacts) {
+            user_data_model user = db.getAll_users_model(phone.replaceAll("\\s+",""));
+            if (user != null) {
+                data_model_list.add(user);
+            }
         }
+
+
         data_adapter.notifyDataSetChanged();
 
     }
@@ -119,7 +155,32 @@ public class contacts_recycler extends Fragment {
             }
         } else {
             // Permission has already been granted
+            get_contacts();
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 00: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    get_contacts();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
+
+
 
 }

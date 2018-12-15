@@ -125,11 +125,11 @@ public class database_operations extends SQLiteOpenHelper {
         List<data_model> data_modelList = new ArrayList<>();
 
         // Select All Query
-        String countQuery = "SELECT  * FROM " + data_model.TABLE_NAME+" INNER JOIN "+user_data_model.TABLE_NAME+
-                " ON ("+data_model.TABLE_NAME+"."+data_model.to_sql+"="+user_data_model.TABLE_NAME+"."+user_data_model.token_sql
-                +" AND "+data_model.TABLE_NAME+"."+data_model.from_sql+"= '"+ FirebaseInstanceId
-                .getInstance().getToken()+" ' ) OR ("+data_model.TABLE_NAME+"."+data_model.from_sql+"= '"+FirebaseInstanceId
-                .getInstance().getToken()+" ' AND "+data_model.TABLE_NAME+"."+data_model.to_sql+"="+user_data_model.TABLE_NAME+"."+user_data_model.token_sql+" )";
+        String countQuery = "SELECT  * FROM " + data_model.TABLE_NAME+" WHERE "
+                +"("+data_model.to_sql+" IN (SELECT "+user_data_model.token_sql+" FROM "+user_data_model.TABLE_NAME+") AND "+data_model.from_sql+"= '"+FirebaseInstanceId.getInstance().getToken()+"' )"+
+                "OR ("+data_model.from_sql+" IN (SELECT "+user_data_model.token_sql+" FROM "+user_data_model.TABLE_NAME+") AND "+data_model.to_sql+"= '"+FirebaseInstanceId.getInstance().getToken()+"' )"
+                +" ORDER BY "+data_model.time_sql;
+
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -224,7 +224,7 @@ public class database_operations extends SQLiteOpenHelper {
         values.put(user_data_model.language_sql, language);
         values.put(user_data_model.phone_sql, phone);
 // Insert the new row, returning the primary key value of the new row
-        String countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME+" WHERE "+user_data_model.phone_sql;
+        String countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME+" WHERE "+user_data_model.phone_sql+"=?";
         Cursor cursor = db2.rawQuery(countQuery, new String[]{phone});
 
         if (!cursor.moveToNext()) {
@@ -559,6 +559,33 @@ public class database_operations extends SQLiteOpenHelper {
         // return notes list
         return user_data_models;
     }
+
+    public user_data_model getAll_users_model(String phone) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME+" WHERE "+user_data_model.phone_sql+"=?"+" OR "+user_data_model.token_sql+"=?";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{phone,phone});
+        user_data_model User_data_model = new user_data_model();
+
+        if (cursor.moveToFirst()) {
+
+
+            User_data_model.name = cursor.getString(cursor.getColumnIndex(user_data_model.name_sql));
+            User_data_model.age = cursor.getInt(cursor.getColumnIndex(user_data_model.age_sql));
+            User_data_model.gender = cursor.getString(cursor.getColumnIndex(user_data_model.gender_sql));
+            User_data_model.country = cursor.getString(cursor.getColumnIndex(user_data_model.country_sql));
+            User_data_model.image_url = cursor.getString(cursor.getColumnIndex(user_data_model.image_url_sql));
+            User_data_model.token = cursor.getString(cursor.getColumnIndex(user_data_model.token_sql));
+            User_data_model.status = cursor.getString(cursor.getColumnIndex(user_data_model.status_sql));
+            User_data_model.language = cursor.getString(cursor.getColumnIndex(user_data_model.language_sql));
+            User_data_model.phone = cursor.getString(cursor.getColumnIndex(user_data_model.phone_sql));
+            return User_data_model;
+        }else {
+            return null;
+        }
+        // return contact
+
+    }
     public int getusersCount()
     {
 
@@ -591,36 +618,7 @@ public class database_operations extends SQLiteOpenHelper {
 
 
     }
-    public user_data_model getAll_users_model(String phone)
-    {
-        String countQuery;
-        SQLiteDatabase db = this.getReadableDatabase();
-        user_data_model User_data_model=new user_data_model();
 
-        // Select All Query
-            countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME+" WHERE "+user_data_model.phone_sql+"=?"+" OR "+user_data_model.token_sql+"=?";
-            Cursor cursor = db.rawQuery(countQuery, new String[]{phone,phone});
-            if (cursor.moveToFirst()) {
-
-
-                    User_data_model.name=cursor.getString(cursor.getColumnIndex(user_data_model.name_sql));
-                    User_data_model.age=cursor.getInt(cursor.getColumnIndex(user_data_model.age_sql));
-                    User_data_model.gender=cursor.getString(cursor.getColumnIndex(user_data_model.gender_sql));
-                    User_data_model.country=cursor.getString(cursor.getColumnIndex(user_data_model.country_sql));
-                    User_data_model.image_url=cursor.getString(cursor.getColumnIndex(user_data_model.image_url_sql));
-                    User_data_model.token=cursor.getString(cursor.getColumnIndex(user_data_model.token_sql));
-                    User_data_model.status=cursor.getString(cursor.getColumnIndex(user_data_model.status_sql));
-                    User_data_model.language=cursor.getString(cursor.getColumnIndex(user_data_model.language_sql));
-                    User_data_model.phone=cursor.getString(cursor.getColumnIndex(user_data_model.phone_sql));
-
-            }
-
-
-        db.close();
-
-        // return notes list
-        return User_data_model;
-    }
     public void update_user_model(String name, String token
             ,String image_url,String status,String country
             ,String gender,int age,String language,String phone)
@@ -640,7 +638,7 @@ public class database_operations extends SQLiteOpenHelper {
         values.put(user_data_model.age_sql, age);
         values.put(user_data_model.language_sql, language);
         values.put(user_data_model.phone_sql, phone);
-        db.update(user_data_model.TABLE_NAME,values, user_data_model.phone_sql, new String[]{phone});
+        db.update(user_data_model.TABLE_NAME,values, user_data_model.phone_sql+ " = ?", new String[]{phone});
 
     }
 

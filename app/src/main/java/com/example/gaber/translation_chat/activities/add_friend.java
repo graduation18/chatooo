@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -109,6 +110,10 @@ public class add_friend extends MainActivity {
     {
         data_model_list.clear();
         data_model_list.addAll(db.getAll_users_model(name,age,gender,country));
+        Log.w("kjdaksjd", String.valueOf(db.getusersCount()));
+        Log.w("kjdaksjd",data_model_list.get(1).phone);
+
+
         data_adapter.notifyDataSetChanged();
 
     }
@@ -133,8 +138,8 @@ public class add_friend extends MainActivity {
     {
         super.onBackPressed();
         Intent back=new Intent(this,main_activity.class);
-        finish();
         startActivity(back);
+        finish();
     }
 
 
