@@ -20,6 +20,7 @@ import com.example.gaber.translation_chat.activities.chat;
 import com.example.gaber.translation_chat.models.data_model;
 import com.example.gaber.translation_chat.custom.database_operations;
 import com.example.gaber.translation_chat.adapters.friends_chat_adapter;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,12 @@ public class chat_recycler extends Fragment {
             @Override
             public void onClick(View view, final int position) {
                 Intent goto_chat=new Intent(getActivity(),chat.class);
-                goto_chat.putExtra("user_token",data_model_list.get(position).from);
+                if (data_model_list.get(position).from.contains(FirebaseInstanceId.getInstance().getToken())){
+                    goto_chat.putExtra("user_token",data_model_list.get(position).to);
+                }else {
+                    goto_chat.putExtra("user_token",data_model_list.get(position).from);
+                }
+
                 startActivity(goto_chat);
             }
 

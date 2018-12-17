@@ -33,9 +33,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity  {
     DrawerLayout fullView;
     Toolbar toolbarTop ;
-    private friends_list_adapter data_adapter;
-    public List<friend_data_model> friends_list = new ArrayList<>();
-    public RecyclerView friends_recyclerView;
 
 
     @Override
@@ -61,38 +58,7 @@ public class MainActivity extends AppCompatActivity  {
         super.setContentView(fullView);
 
 
-        friends_recyclerView = findViewById(R.id.friends_recycler);
-        data_adapter = new friends_list_adapter(this, friends_list);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        friends_recyclerView.setLayoutManager(mLayoutManager);
-        friends_recyclerView.setItemAnimator(new DefaultItemAnimator());
-        friends_recyclerView.addItemDecoration(new MyDividerItemDecoration(this, LinearLayoutManager.VERTICAL, 5));
-        friends_recyclerView.setAdapter(data_adapter);
 
-
-        find_friends(getSharedPreferences("logged_in",MODE_PRIVATE).getString("name",""));
-
-        Thread t = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    while (!isInterrupted()) {
-                        Thread.sleep(5000);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                            data_adapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                } catch (InterruptedException e) {
-                }
-            }
-        };
-
-        t.start();
-        edit_friends_tokens();
 
 
 
@@ -112,39 +78,6 @@ public class MainActivity extends AppCompatActivity  {
     public void logout(View view) {
         log_out();
     }
-    private void find_friends(String s)
-    {
-
-         FirebaseDatabase.getInstance().getReference().child("friends_list").child(s)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        friends_list.clear();
-                        if (dataSnapshot.hasChildren()) {
-
-                            for (DataSnapshot sub_type : dataSnapshot.getChildren()) {
-                                String name=sub_type.child("name").getValue(String.class);
-                                String image=sub_type.child("image_url").getValue(String.class);
-                                String token=sub_type.child("token").getValue(String.class);
-                                String language=sub_type.child("language").getValue(String.class);
-                                friends_list.add(new friend_data_model(name,image,token,language));
-
-                            }
-                            data_adapter.notifyDataSetChanged();
-                        }else {
-                            Toast.makeText(getApplicationContext(),"no such user",Toast.LENGTH_LONG).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-
-    }
 
     public void gotosettings(View view) {
         Intent settings=new Intent(this, com.example.gaber.translation_chat.activities.settings.class);
@@ -163,47 +96,5 @@ public class MainActivity extends AppCompatActivity  {
         finish();
         startActivity(add_friend);
     }
-    private void edit_friends_tokens()
-    {
-        FirebaseDatabase.getInstance().getReference().child("friends_list")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChildren()) {
 
-                            for (DataSnapshot sub_type : dataSnapshot.getChildren()) {
-                                Query query = sub_type.getRef().orderByKey()
-                                        .equalTo(getSharedPreferences("logged_in",MODE_PRIVATE).getString("name",""));
-                                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.exists()) {
-
-                                            for (DataSnapshot sub_type : dataSnapshot.getChildren()) {
-                                                DatabaseReference myRef = sub_type.getRef();
-                                                myRef.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-
-                            }
-                        }else {
-                            Toast.makeText(getApplicationContext(),"no such user",Toast.LENGTH_LONG).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-    }
 }

@@ -120,23 +120,24 @@ public class database_operations extends SQLiteOpenHelper {
         // return notes list
         return data_modelList;
     }
-    public List<data_model> getAll_notification_model()
+    public data_model getlast_message(String from,String to)
     {
-        List<data_model> data_modelList = new ArrayList<>();
-
+        data_model data = new data_model();
         // Select All Query
         String countQuery = "SELECT  * FROM " + data_model.TABLE_NAME+" WHERE "
-                +"("+data_model.to_sql+" IN (SELECT "+user_data_model.token_sql+" FROM "+user_data_model.TABLE_NAME+") AND "+data_model.from_sql+"= '"+FirebaseInstanceId.getInstance().getToken()+"' )"+
-                "OR ("+data_model.from_sql+" IN (SELECT "+user_data_model.token_sql+" FROM "+user_data_model.TABLE_NAME+") AND "+data_model.to_sql+"= '"+FirebaseInstanceId.getInstance().getToken()+"' )"
-                +" ORDER BY "+data_model.time_sql;
+                +"("+data_model.to_sql+"=? AND "+data_model.from_sql+"=? )"+
+                "OR ("+data_model.from_sql+"=? AND "+data_model.to_sql+"=? )"
+                +" ORDER BY "+data_model.time_sql+" DESC LIMIT 1";
+
 
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
+
+        Cursor cursor = db.rawQuery(countQuery, new String[]{to,from,to,from});
+
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
-            do {
-                data_model data = new data_model();
+
                 data.from=cursor.getString(cursor.getColumnIndex(data_model.from_sql));
                 data.to=cursor.getString(cursor.getColumnIndex(data_model.to_sql));
                 data.message=cursor.getString(cursor.getColumnIndex(data_model.message_sql));
@@ -144,7 +145,36 @@ public class database_operations extends SQLiteOpenHelper {
                 data.type=cursor.getString(cursor.getColumnIndex(data_model.type_sql));
                 data.storage_url=cursor.getString(cursor.getColumnIndex(data_model.storage_url_sql));
                 data.lang_pair=cursor.getString(cursor.getColumnIndex(data_model.lang_pair_sql));
-                data_modelList.add(data);
+            db.close();
+            // return notes list
+            return data;
+
+        }else {
+            return null;
+        }
+
+        // close db connection
+
+    }
+    public List<data_model> getAll_notification_model()
+    {
+        List<data_model> data_modelList = new ArrayList<>();
+
+        // Select All Query
+        String countQuery = "SELECT  * FROM " + user_data_model.TABLE_NAME;
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                data_model data=new data_model();
+                data= getlast_message(cursor.getString(cursor.getColumnIndex(user_data_model.token_sql)),FirebaseInstanceId.getInstance().getToken());
+                if (data!=null){
+                    data_modelList.add(data);
+                }
+
 
             } while (cursor.moveToNext());
         }

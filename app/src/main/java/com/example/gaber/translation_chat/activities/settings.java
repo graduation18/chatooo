@@ -53,7 +53,7 @@ public class settings extends MainActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent back=new Intent(this,MainActivity.class);
+        Intent back=new Intent(this,main_activity.class);
         finish();
         startActivity(back);
     }

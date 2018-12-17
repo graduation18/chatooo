@@ -123,6 +123,7 @@ public class chat extends AppCompatActivity {
         user_data_model user=db.getAll_users_model(to_user_id);
         String from_name=user.name;
         String image_url=user.image_url;
+        lang_pair=getSharedPreferences("logged_in",MODE_PRIVATE).getString("language","ar")+"-"+user.language;
         user_id.setText(from_name);
         Picasso.with(chat.this)
                 .load(image_url)
@@ -513,7 +514,7 @@ public class chat extends AppCompatActivity {
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("Content-Type", "application/json");
-                        params.put("Authorization", "key=AAAA8WARYks:APA91bFTef8NfeRe5ZHwpndFqM1I9_w1RJi8AdA48UZnfJGHzARVbM2qd5x2URSp1CaUvk1mavbT3bXrlzUIh6eRso4XjRIU4PbS7TWAe0RYLo7e4OVc8dsQ602Nz7jzmL5l4eKGbxYT");
+                        params.put("Authorization", "key=AAAAgt2WRhE:APA91bGPyXD_fxtAEmZyE18zcq37bD4H0WD3gl1oWzJEgUzaeyho3YCVA8tgKvdasBzKSdWTbNZkRsxFBPyMN8gu2uNKHT0GgJxuuaszkT49hGGpwHdScpn2GrqZ9PHvzBzswirSBK6W");
 
                         return params;
                     }

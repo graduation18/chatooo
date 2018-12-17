@@ -77,20 +77,6 @@ public boolean seen=false;
 
         }
     }
-    public class MyViewHolder_translate extends RecyclerView.ViewHolder {
-        public TextView name,message_status;
-        public ImageView translate;
-        public LinearLayout message_layout;
-        public MyViewHolder_translate(View view) {
-            super(view);
-            name=(TextView) view.findViewById(R.id.name);
-            message_status=(TextView)view.findViewById(R.id.message_status);
-            translate =(ImageView) view.findViewById(R.id.translate);
-            message_layout =(LinearLayout) view.findViewById(R.id.translate_data);
-
-
-        }
-    }
     public class MyViewHolder_record extends RecyclerView.ViewHolder {
         public TextView name,message_status;
         public SeekBar progressBar;
@@ -163,15 +149,6 @@ public boolean seen=false;
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.file_item_righ, parent, false);
             return new MyViewHolder_file(itemView);
-        }else if (viewType==8){
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.translate_item, parent, false);
-            return new MyViewHolder_translate(itemView);
-        }
-        else if (viewType==9){
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.translate_item_righ, parent, false);
-            return new MyViewHolder_translate(itemView);
         }
         return null;
 

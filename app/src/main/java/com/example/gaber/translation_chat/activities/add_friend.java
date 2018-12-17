@@ -110,10 +110,6 @@ public class add_friend extends MainActivity {
     {
         data_model_list.clear();
         data_model_list.addAll(db.getAll_users_model(name,age,gender,country));
-        Log.w("kjdaksjd", String.valueOf(db.getusersCount()));
-        Log.w("kjdaksjd",data_model_list.get(1).phone);
-
-
         data_adapter.notifyDataSetChanged();
 
     }

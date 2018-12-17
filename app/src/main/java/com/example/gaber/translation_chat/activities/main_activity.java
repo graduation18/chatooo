@@ -40,16 +40,16 @@ public class main_activity extends MainActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        db=new database_operations(this);
+        status_online();
+        get_users();
         tabLayout=(TabLayout)findViewById(R.id.zyamat7by);
         viewPager=(ViewPager)findViewById(R.id.viewpager);
-        db=new database_operations(this);
         ViewPagerAdapter_with_titles adapter=new ViewPagerAdapter_with_titles( getSupportFragmentManager());
         adapter.addFragment(new chat_recycler(),"Chats");
         adapter.addFragment(new contacts_recycler(),"Contacts");
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
-        status_online();
-        get_users();
 
 
     }

@@ -113,8 +113,8 @@ public class confirm_code extends AppCompatActivity {
         int timer=getSharedPreferences("request_code",MODE_PRIVATE).getInt("timer",0);
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phone_number,        // Phone number to verify
-                timer,                 // Timeout duration
-                TimeUnit.MINUTES,   // Unit of timeout
+                60,                 // Timeout duration
+                TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks);// OnVerificationStateChangedCallbacks
 
